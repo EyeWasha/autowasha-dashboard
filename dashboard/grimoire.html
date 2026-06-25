@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grimoire - AutoWasha RPG Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <div class="container">
+      <h1>📚 SPELL GRIMOIRE</h1>
+      <p>Reference guide for all available spells</p>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <nav>
+    <ul>
+      <li><a href="index.html">📊 Dashboard</a></li>
+      <li><a href="leaderboard.html">🏆 Leaderboard</a></li>
+      <li><a href="zones.html">🗺️ Zones</a></li>
+      <li><a href="grimoire.html" class="active">📚 Grimoire</a></li>
+      <li><a href="admin.html">⚙️ Admin</a></li>
+    </ul>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="container">
+    <!-- Filter -->
+    <div class="panel mb-2">
+      <h2>🔍 FILTER BY ELEMENT</h2>
+      <div class="flex" style="gap: 8px; flex-wrap: wrap;">
+        <button class="btn element-filter active" data-element="all">All Spells</button>
+      </div>
+    </div>
+
+    <!-- Spells Grid -->
+    <div class="panel">
+      <h2>📚 SPELLS</h2>
+      <div class="stat-grid" id="spells-grid">
+        <p class="text-center" style="grid-column: 1/-1; color: #FFFF00;">
+          <span class="loading"></span> Loading spells...
+        </p>
+      </div>
+    </div>
+
+    <!-- Element Effectiveness Matrix -->
+    <div class="panel mt-2">
+      <h2>⚡ ELEMENT EFFECTIVENESS CHART</h2>
+      <table id="effectiveness-table">
+        <thead>
+          <tr>
+            <th>Element</th>
+            <th>Weak To</th>
+            <th>Strong Against</th>
+          </tr>
+        </thead>
+        <tbody id="effectiveness-body">
+          <tr>
+            <td colspan="3" class="text-center">Loading...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script>
+    window.API_BASE_URL = window.location.hostname === 'localhost' 
+      ? 'http://localhost:5000'
+      : 'https://api.yourdomain.com';
+  </script>
+  <script src="js/api.js"></script>
+  <script src="js/socket.js"></script>
+  <script src="js/utils.js"></script>
+  <script>
+    class GrimoirePage {
+      constructor() {
+        this.elements = [];
+        this.spells = [];
+        this.init();
+      }
+
+      async init() {
+        try {
+          this.elements = await api.getElements();
+          // Create filter buttons
+          const filterContainer = document.querySelector('.element-filter').parentElement;
+          this.elements.forEach(el => {
+            const btn = document.createElement('button');
+            btn.className = 'btn element-filter';
+            btn.dataset.element = el;
+            btn.textContent = el;
+            btn.addEventListener('click', () => this.filterByElement(el));
+            filterContainer.appendChild(btn);
+          });
+
+          // Load effectiveness data (mock)
+          this.loadEffectiveness();
+        } catch (error) {
+          console.error('Error loading grimoire:', error);
+          showNotification('Failed to load grimoire', 'error');
+        }
+      }
+
+      filterByElement(element) {
+        document.querySelectorAll('.element-filter').forEach(btn => {
+          btn.classList.remove('active');
+        });
+        event.target.classList.add('active');
+
+        // Would filter spells here
+      }
+
+      loadEffectiveness() {
+        const tbody = document.getElementById('effectiveness-body');
+        // Mock data
+        const data = [
+          { element: 'Fire', weakTo: 'Water', strongAgainst: 'Wind' },
+          { element: 'Water', weakTo: 'Electric', strongAgainst: 'Fire' },
+          { element: 'Wind', weakTo: 'Electric', strongAgainst: 'Water' },
+          { element: 'Earth', weakTo: 'Wind', strongAgainst: 'Electric' },
+          { element: 'Light', weakTo: 'Dark', strongAgainst: 'Dark' },
+          { element: 'Dark', weakTo: 'Light', strongAgainst: 'Light' },
+        ];
+
+        tbody.innerHTML = data.map(row => `
+          <tr>
+            <td>${createElementBadge(row.element)}</td>
+            <td>${createElementBadge(row.weakTo)}</td>
+            <td>${createElementBadge(row.strongAgainst)}</td>
+          </tr>
+        `).join('');
+
+        // Load spells grid
+        this.loadSpells();
+      }
+
+      async loadSpells() {
+        const grid = document.getElementById('spells-grid');
+        // Mock spells data
+        const mockSpells = [
+          { name: 'Fireball', element: 'Fire', damage: 30, manaCost: 20 },
+          { name: 'Ice Storm', element: 'Water', damage: 35, manaCost: 25 },
+          { name: 'Cyclone', element: 'Wind', damage: 28, manaCost: 18 },
+          { name: 'Stone Wall', element: 'Earth', damage: 0, manaCost: 15 },
+        ];
+
+        grid.innerHTML = mockSpells.map(spell => `
+          <div class="card">
+            <div class="card-title">${spell.name}</div>
+            <div class="card-label">Element</div>
+            <div style="margin: 8px 0;">${createElementBadge(spell.element)}</div>
+            <div style="color: #00FFFF; font-size: 12px;">
+              <div>Damage: ${spell.damage}</div>
+              <div>Mana Cost: ${spell.manaCost}</div>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    const grimoirePage = new GrimoirePage();
+  </script>
+</body>
+</html>

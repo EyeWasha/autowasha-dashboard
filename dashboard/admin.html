@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel - AutoWasha RPG Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <div class="container">
+      <h1>⚙️ ADMIN PANEL</h1>
+      <p>System status and management dashboard</p>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <nav>
+    <ul>
+      <li><a href="index.html">📊 Dashboard</a></li>
+      <li><a href="leaderboard.html">🏆 Leaderboard</a></li>
+      <li><a href="zones.html">🗺️ Zones</a></li>
+      <li><a href="grimoire.html">📚 Grimoire</a></li>
+      <li><a href="admin.html" class="active">⚙️ Admin</a></li>
+    </ul>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="container">
+    <div class="main">
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <!-- System Health -->
+        <div class="panel">
+          <h3>🔧 SYSTEM HEALTH</h3>
+          <div class="stat-box">
+            <div class="stat-label">Backend</div>
+            <div id="backend-status" class="stat-value" style="color: #FFFF00;">
+              🔄 Checking...
+            </div>
+          </div>
+          <div class="stat-box mt-2">
+            <div class="stat-label">Database</div>
+            <div id="db-status" class="stat-value" style="color: #FFFF00;">
+              🔄 Checking...
+            </div>
+          </div>
+          <div class="stat-box mt-2">
+            <div class="stat-label">Socket.IO</div>
+            <div id="socket-status" class="stat-value" style="color: #FFFF00;">
+              🔄 Checking...
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="panel mt-2">
+          <h3>📈 UPTIME</h3>
+          <div class="stat-box">
+            <div class="stat-label">Server Uptime</div>
+            <div id="uptime" class="stat-value">-</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content Area -->
+      <div class="content">
+        <!-- Health Check -->
+        <div class="panel">
+          <h2>🏥 HEALTH CHECK</h2>
+          <button class="btn primary" onclick="adminPage.checkHealth()" style="margin-bottom: 16px;">
+            Run Health Check
+          </button>
+          <div id="health-results">
+            <p style="color: #FFFF00;">Click the button above to run a health check</p>
+          </div>
+        </div>
+
+        <!-- Recent Events -->
+        <div class="panel mt-2">
+          <h2>📊 SYSTEM LOGS</h2>
+          <div class="flex" style="gap: 8px; margin-bottom: 16px;">
+            <button class="btn" data-log-level="all">All</button>
+            <button class="btn" data-log-level="error">Errors</button>
+            <button class="btn" data-log-level="warning">Warnings</button>
+            <button class="btn" data-log-level="info">Info</button>
+          </div>
+          <div id="logs-container" style="max-height: 400px; overflow-y: auto;">
+            <p style="color: #FFFF00; font-size: 12px;">Logs will appear here...</p>
+          </div>
+        </div>
+
+        <!-- Database Info -->
+        <div class="panel mt-2">
+          <h2>🗄️ DATABASE STATUS</h2>
+          <table id="db-info-table">
+            <thead>
+              <tr>
+                <th>Metric</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Total Players</td>
+                <td id="db-players">-</td>
+              </tr>
+              <tr>
+                <td>Active Quests</td>
+                <td id="db-quests">-</td>
+              </tr>
+              <tr>
+                <td>Combat Logs</td>
+                <td id="db-logs">-</td>
+              </tr>
+              <tr>
+                <td>Total Possessions</td>
+                <td id="db-possessions">-</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- API Endpoints -->
+        <div class="panel mt-2">
+          <h2>🔗 API ENDPOINTS</h2>
+          <div id="endpoints-list">
+            <div class="card">
+              <div class="card-title">GET /api/health</div>
+              <div style="color: #00FFFF; font-size: 12px;">Backend health status</div>
+            </div>
+            <div class="card">
+              <div class="card-title">GET /api/rpg/leaderboard</div>
+              <div style="color: #00FFFF; font-size: 12px;">Player leaderboard</div>
+            </div>
+            <div class="card">
+              <div class="card-title">GET /api/rpg/zones</div>
+              <div style="color: #00FFFF; font-size: 12px;">Available zones</div>
+            </div>
+            <div class="card">
+              <div class="card-title">GET /api/rpg/player/:id/profile</div>
+              <div style="color: #00FFFF; font-size: 12px;">Player profile data</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script>
+    window.API_BASE_URL = window.location.hostname === 'localhost' 
+      ? 'http://localhost:5000'
+      : 'https://api.yourdomain.com';
+  </script>
+  <script src="js/api.js"></script>
+  <script src="js/socket.js"></script>
+  <script src="js/utils.js"></script>
+  <script>
+    class AdminPage {
+      constructor() {
+        this.init();
+      }
+
+      async init() {
+        this.checkHealth();
+        this.updateSocketStatus();
+        this.setupLogFilters();
+
+        // Refresh health check every 30 seconds
+        setInterval(() => this.checkHealth(), 30000);
+      }
+
+      async checkHealth() {
+        try {
+          const health = await api.getHealth();
+          this.displayHealthResults(health);
+          document.getElementById('backend-status').textContent = '✅ Online';
+          document.getElementById('backend-status').style.color = '#00FF00';
+        } catch (error) {
+          console.error('Health check failed:', error);
+          document.getElementById('backend-status').textContent = '❌ Offline';
+          document.getElementById('backend-status').style.color = '#FF0000';
+          document.getElementById('health-results').innerHTML = `
+            <div class="notification error">
+              <strong>⚠️ Health Check Failed</strong>
+              <p>${error.message}</p>
+            </div>
+          `;
+        }
+      }
+
+      displayHealthResults(health) {
+        const container = document.getElementById('health-results');
+
+        const html = `
+          <div class="notification success">
+            <strong>✅ System Healthy</strong>
+            <p>Backend is responding normally</p>
+            <div style="margin-top: 12px; font-size: 12px;">
+              <div>Version: ${health.version || 'N/A'}</div>
+              <div>Timestamp: ${new Date(health.timestamp).toLocaleString()}</div>
+              <div>Uptime: ${this.formatUptime(health.uptime)}</div>
+            </div>
+          </div>
+          <div class="card mt-2">
+            <div class="card-title">Database</div>
+            <div style="color: ${health.database?.connected ? '#00FF00' : '#FF0000'};">
+              ${health.database?.connected ? '✅ Connected' : '❌ Disconnected'}
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title">Socket.IO</div>
+            <div style="color: ${health.socketio?.connected ? '#00FF00' : '#FF0000'};">
+              ${health.socketio?.connected ? '✅ Connected' : '❌ Disconnected'}
+            </div>
+          </div>
+        `;
+
+        container.innerHTML = html;
+      }
+
+      formatUptime(seconds) {
+        if (!seconds) return '-';
+        const days = Math.floor(seconds / 86400);
+        const hours = Math.floor((seconds % 86400) / 3600);
+        const mins = Math.floor((seconds % 3600) / 60);
+        return `${days}d ${hours}h ${mins}m`;
+      }
+
+      updateSocketStatus() {
+        socket.on('socketConnected', () => {
+          document.getElementById('socket-status').textContent = '✅ Connected';
+          document.getElementById('socket-status').style.color = '#00FF00';
+        });
+
+        socket.on('socketDisconnected', () => {
+          document.getElementById('socket-status').textContent = '❌ Disconnected';
+          document.getElementById('socket-status').style.color = '#FF0000';
+        });
+
+        if (socket.isConnected()) {
+          document.getElementById('socket-status').textContent = '✅ Connected';
+          document.getElementById('socket-status').style.color = '#00FF00';
+        }
+      }
+
+      setupLogFilters() {
+        document.querySelectorAll('[data-log-level]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            document.querySelectorAll('[data-log-level]').forEach(b => {
+              b.classList.remove('active');
+            });
+            btn.classList.add('active');
+          });
+        });
+      }
+    }
+
+    const adminPage = new AdminPage();
+  </script>
+</body>
+</html>

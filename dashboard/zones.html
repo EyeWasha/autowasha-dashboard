@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zones - AutoWasha RPG Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <div class="container">
+      <h1>🗺️ ZONE MAP</h1>
+      <p>All available zones and difficulty levels</p>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <nav>
+    <ul>
+      <li><a href="index.html">📊 Dashboard</a></li>
+      <li><a href="leaderboard.html">🏆 Leaderboard</a></li>
+      <li><a href="zones.html" class="active">🗺️ Zones</a></li>
+      <li><a href="grimoire.html">📚 Grimoire</a></li>
+      <li><a href="admin.html">⚙️ Admin</a></li>
+    </ul>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="container">
+    <div class="panel">
+      <h2>🗺️ AVAILABLE ZONES</h2>
+      <div class="stat-grid" id="zones-grid">
+        <p class="text-center" style="grid-column: 1/-1; color: #FFFF00;">
+          <span class="loading"></span> Loading zones...
+        </p>
+      </div>
+    </div>
+
+    <div class="panel mt-2">
+      <h2>📊 ZONE STATISTICS</h2>
+      <table id="zones-table">
+        <thead>
+          <tr>
+            <th>Zone</th>
+            <th>Difficulty</th>
+            <th>Min Level</th>
+            <th>Reward Mult</th>
+            <th>Popular Elements</th>
+          </tr>
+        </thead>
+        <tbody id="zones-body">
+          <tr>
+            <td colspan="5" class="text-center">
+              <span class="loading"></span> Loading...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script>
+    window.API_BASE_URL = window.location.hostname === 'localhost' 
+      ? 'http://localhost:5000'
+      : 'https://api.yourdomain.com';
+  </script>
+  <script src="js/api.js"></script>
+  <script src="js/socket.js"></script>
+  <script src="js/utils.js"></script>
+  <script>
+    // Simple zones page
+    class ZonesPage {
+      async init() {
+        try {
+          const zones = await api.getZones();
+          this.renderZones(zones);
+        } catch (error) {
+          console.error('Error loading zones:', error);
+          showNotification('Failed to load zones', 'error');
+        }
+      }
+
+      renderZones(zones) {
+        const grid = document.getElementById('zones-grid');
+        const tbody = document.getElementById('zones-body');
+
+        grid.innerHTML = zones.map(zone => `
+          <div class="card">
+            <div class="card-title">${zone.name}</div>
+            <div class="card-label">Difficulty: ${zone.difficulty || 'N/A'}</div>
+            <div style="color: #00FFFF; font-size: 12px; margin-top: 8px;">
+              <div>Min Level: ${zone.min_level || '-'}</div>
+              <div>Enemy Type: ${zone.enemy_type || '-'}</div>
+            </div>
+          </div>
+        `).join('');
+
+        tbody.innerHTML = zones.map(zone => `
+          <tr>
+            <td>${zone.name}</td>
+            <td>${zone.difficulty || '-'}</td>
+            <td>${zone.min_level || '-'}</td>
+            <td>${zone.reward_multiplier || '1x'}</td>
+            <td>${zone.recommended_elements || 'Any'}</td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    const zonesPage = new ZonesPage();
+    zonesPage.init();
+  </script>
+</body>
+</html>

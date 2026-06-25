@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AutoWasha RPG Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <div class="container">
+      <h1>⚔️ AUTOWASHA RPG DASHBOARD</h1>
+      <p>Real-time player progression & game statistics</p>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <nav>
+    <ul>
+      <li><a href="index.html" class="active">📊 Dashboard</a></li>
+      <li><a href="leaderboard.html">🏆 Leaderboard</a></li>
+      <li><a href="zones.html">🗺️ Zones</a></li>
+      <li><a href="grimoire.html">📚 Grimoire</a></li>
+      <li><a href="admin.html">⚙️ Admin</a></li>
+    </ul>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="container">
+    <div class="main">
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <!-- System Status -->
+        <div class="panel">
+          <h3>🔧 SYSTEM STATUS</h3>
+          <div class="stat-box" id="status-box">
+            <div class="stat-label">Backend</div>
+            <div id="backend-status" class="stat-value" style="color: #FFFF00;">
+              🔄 Checking...
+            </div>
+          </div>
+          <div class="stat-box mt-2" id="online-box">
+            <div class="stat-label">Online Players</div>
+            <div id="online-count" class="stat-value">0</div>
+          </div>
+          <div class="stat-box mt-2">
+            <div class="stat-label">Active Quests</div>
+            <div id="active-quests" class="stat-value">0</div>
+          </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="panel mt-2">
+          <h3>📈 QUICK STATS</h3>
+          <div id="quick-stats">
+            <p style="color: #FFFF00; font-size: 12px;">Loading...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content Area -->
+      <div class="content">
+        <!-- Top Players Widget -->
+        <div class="panel">
+          <h2>🏆 TOP PLAYERS</h2>
+          <table id="top-players-table">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Player</th>
+                <th>Level</th>
+                <th>Element</th>
+                <th>Coins</th>
+                <th>XP</th>
+              </tr>
+            </thead>
+            <tbody id="top-players">
+              <tr>
+                <td colspan="6" class="text-center" style="color: #FFFF00;">
+                  <span class="loading"></span> Loading...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Active Events -->
+        <div class="panel mt-2">
+          <h2>⚡ RECENT ACTIVITY</h2>
+          <div id="activity-feed">
+            <p style="color: #FFFF00; font-size: 12px;">Connecting to real-time updates...</p>
+          </div>
+        </div>
+
+        <!-- Game Statistics -->
+        <div class="panel mt-2">
+          <h2>📊 GAME STATISTICS</h2>
+          <div class="stat-grid" id="game-stats">
+            <div class="stat-box">
+              <div class="stat-label">Total Players</div>
+              <div id="total-players" class="stat-value">-</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">Total Level Ups</div>
+              <div id="total-levelups" class="stat-value">-</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">Avg Player Level</div>
+              <div id="avg-level" class="stat-value">-</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">Total Quests</div>
+              <div id="total-quests" class="stat-value">-</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Element Distribution -->
+        <div class="panel mt-2">
+          <h2>🔥 ELEMENT DISTRIBUTION</h2>
+          <div class="stat-grid" id="element-dist">
+            <p style="color: #FFFF00; font-size: 12px;">Loading element data...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notifications Container -->
+  <div id="notifications"></div>
+
+  <!-- Scripts -->
+  <script>
+    // Set API base URL (configure for your domain)
+    window.API_BASE_URL = window.location.hostname === 'localhost' 
+      ? 'http://localhost:5000'
+      : 'https://api.eyewasha.com';
+  </script>
+  <script src="js/api.js"></script>
+  <script src="js/socket.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/pages/dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leaderboard - AutoWasha RPG Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <div class="container">
+      <h1>🏆 AUTOWASHA RPG LEADERBOARD</h1>
+      <p>Global player rankings and statistics</p>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <nav>
+    <ul>
+      <li><a href="index.html">📊 Dashboard</a></li>
+      <li><a href="leaderboard.html" class="active">🏆 Leaderboard</a></li>
+      <li><a href="zones.html">🗺️ Zones</a></li>
+      <li><a href="grimoire.html">📚 Grimoire</a></li>
+      <li><a href="admin.html">⚙️ Admin</a></li>
+    </ul>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="container">
+    <!-- Filters -->
+    <div class="panel mb-2">
+      <h2>🔍 FILTERS</h2>
+      <div class="flex" style="gap: 12px; flex-wrap: wrap;">
+        <div>
+          <label style="color: #00FFFF; font-weight: bold;">Sort By:</label>
+          <select id="sort-select">
+            <option value="level">Level (Highest)</option>
+            <option value="experience">Experience (Highest)</option>
+            <option value="coins">Coins (Highest)</option>
+          </select>
+        </div>
+        <div>
+          <label style="color: #00FFFF; font-weight: bold;">Element:</label>
+          <select id="element-filter">
+            <option value="">All Elements</option>
+          </select>
+        </div>
+        <div>
+          <label style="color: #00FFFF; font-weight: bold;">Min Level:</label>
+          <input type="number" id="level-filter" min="1" max="100" value="1" style="width: 80px;">
+        </div>
+        <button class="btn primary" onclick="leaderboardPage.applyFilters()">Apply Filters</button>
+      </div>
+    </div>
+
+    <!-- Leaderboard Table -->
+    <div class="panel">
+      <h2>🏆 TOP 100 PLAYERS</h2>
+      <table id="leaderboard-table">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Player</th>
+            <th>Level</th>
+            <th>Element</th>
+            <th>Experience</th>
+            <th>Coins</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboard-body">
+          <tr>
+            <td colspan="7" class="text-center">
+              <span class="loading"></span> Loading leaderboard...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="panel mt-2 flex-center" style="gap: 12px;">
+      <button class="btn" id="prev-btn" onclick="leaderboardPage.previousPage()">← Previous</button>
+      <span id="page-info" style="color: #00FFFF; font-weight: bold;">Page 1</span>
+      <button class="btn" id="next-btn" onclick="leaderboardPage.nextPage()">Next →</button>
+    </div>
+
+    <!-- Statistics -->
+    <div class="panel mt-2">
+      <h2>📊 LEADERBOARD STATISTICS</h2>
+      <div class="stat-grid">
+        <div class="stat-box">
+          <div class="stat-label">Total Players</div>
+          <div id="total-players-stat" class="stat-value">-</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Avg Level</div>
+          <div id="avg-level-stat" class="stat-value">-</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Highest Level</div>
+          <div id="highest-level-stat" class="stat-value">-</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Most Common Element</div>
+          <div id="common-element-stat" class="stat-value" style="font-size: 14px;">-</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notifications -->
+  <div id="notifications"></div>
+
+  <!-- Scripts -->
+  <script>
+    window.API_BASE_URL = window.location.hostname === 'localhost' 
+      ? 'http://localhost:5000'
+      : 'https://api.yourdomain.com';
+  </script>
+  <script src="js/api.js"></script>
+  <script src="js/socket.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/pages/leaderboard.js"></script>
+</body>
+</html>

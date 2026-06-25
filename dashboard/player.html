@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Player Profile - AutoWasha RPG Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <div class="container">
+      <h1>⚔️ AUTOWASHA RPG - PLAYER PROFILE</h1>
+      <p>View player stats, inventory, and progression</p>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <nav>
+    <ul>
+      <li><a href="index.html">📊 Dashboard</a></li>
+      <li><a href="leaderboard.html">🏆 Leaderboard</a></li>
+      <li><a href="zones.html">🗺️ Zones</a></li>
+      <li><a href="grimoire.html">📚 Grimoire</a></li>
+      <li><a href="admin.html">⚙️ Admin</a></li>
+    </ul>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="container">
+    <!-- Back Button -->
+    <div style="margin-bottom: 16px;">
+      <button class="btn" onclick="history.back()">← Back</button>
+      <span id="player-search-box" style="margin-left: 16px; display: inline-block;">
+        <input type="text" id="player-search" placeholder="Enter player name or ID..." style="width: 200px;">
+        <button class="btn primary" onclick="playerPage.searchPlayer()">Search</button>
+      </span>
+    </div>
+
+    <div class="main">
+      <!-- Sidebar - Player Info -->
+      <div class="sidebar">
+        <div class="panel">
+          <div id="player-header" style="text-align: center;">
+            <h2 id="player-name">Loading...</h2>
+            <div id="player-badges" style="margin: 16px 0;"></div>
+            <div class="stat-grid">
+              <div class="stat-box">
+                <div class="stat-label">Level</div>
+                <div id="player-level" class="stat-value">-</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-label">Element</div>
+                <div id="player-element" class="stat-value">-</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats Panel -->
+        <div class="panel mt-2">
+          <h3>⚔️ STATS</h3>
+          <div class="stat-grid">
+            <div class="stat-box">
+              <div class="stat-label">HP</div>
+              <div id="stat-hp" class="stat-value">-</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">Mana</div>
+              <div id="stat-mana" class="stat-value">-</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">STR</div>
+              <div id="stat-str" class="stat-value">-</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">INT</div>
+              <div id="stat-int" class="stat-value">-</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">DEX</div>
+              <div id="stat-dex" class="stat-value">-</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-label">DEF</div>
+              <div id="stat-def" class="stat-value">-</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Progression -->
+        <div class="panel mt-2">
+          <h3>📈 PROGRESSION</h3>
+          <div style="margin-bottom: 12px;">
+            <div class="stat-label">Experience</div>
+            <div id="xp-progress"></div>
+          </div>
+          <div>
+            <div class="stat-label">Current Zone</div>
+            <div id="player-zone" class="stat-value" style="font-size: 14px; color: #00FFFF;">-</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <div class="content">
+        <!-- Tabs Navigation -->
+        <div class="panel highlight">
+          <div class="flex" style="gap: 8px; border-bottom: 2px solid #00FFFF; padding-bottom: 12px;">
+            <button class="tab-btn active" data-tab="inventory">📦 Inventory</button>
+            <button class="tab-btn" data-tab="equipment">⚔️ Equipment</button>
+            <button class="tab-btn" data-tab="spells">📚 Spells</button>
+            <button class="tab-btn" data-tab="quest">⚡ Current Quest</button>
+          </div>
+        </div>
+
+        <!-- Inventory Tab -->
+        <div id="inventory-tab" class="tab-content panel active">
+          <h2>📦 INVENTORY</h2>
+          <table id="inventory-table">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Type</th>
+                <th>Rarity</th>
+                <th>Quantity</th>
+              </tr>
+            </thead>
+            <tbody id="inventory-body">
+              <tr>
+                <td colspan="4" class="text-center">
+                  <span class="loading"></span> Loading...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Equipment Tab -->
+        <div id="equipment-tab" class="tab-content panel" style="display: none;">
+          <h2>⚔️ EQUIPMENT</h2>
+          <div class="stat-grid" id="equipment-body">
+            <p class="text-center" style="grid-column: 1/-1; color: #FFFF00;">Loading...</p>
+          </div>
+        </div>
+
+        <!-- Spells Tab -->
+        <div id="spells-tab" class="tab-content panel" style="display: none;">
+          <h2>📚 LEARNED SPELLS</h2>
+          <table id="spells-table">
+            <thead>
+              <tr>
+                <th>Spell</th>
+                <th>Element</th>
+                <th>Damage</th>
+                <th>Mana Cost</th>
+              </tr>
+            </thead>
+            <tbody id="spells-body">
+              <tr>
+                <td colspan="4" class="text-center">
+                  <span class="loading"></span> Loading...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Quest Tab -->
+        <div id="quest-tab" class="tab-content panel" style="display: none;">
+          <h2>⚡ ACTIVE QUEST</h2>
+          <div id="quest-body">
+            <p style="color: #FFFF00;">Loading quest information...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notifications -->
+  <div id="notifications"></div>
+
+  <!-- Scripts -->
+  <script>
+    window.API_BASE_URL = window.location.hostname === 'localhost' 
+      ? 'http://localhost:5000'
+      : 'https://api.yourdomain.com';
+
+    // Get player ID from URL query parameter
+    window.CURRENT_PLAYER_ID = new URLSearchParams(window.location.search).get('id');
+  </script>
+  <script src="js/api.js"></script>
+  <script src="js/socket.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/pages/player.js"></script>
+</body>
+</html>
