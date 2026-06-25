@@ -20,7 +20,9 @@ Your dashboard files are already on GitHub! Now we just need to connect Cloudfla
 4. Click: **Authorize Cloudflare** (if prompted)
 
 ### Step 3: Select Your Repository
-
+REACT_APP_API_URL = https://api.eyewasha.com
+   VITE_API_URL = https://api.eyewasha.com
+   VITE_BACKEND_URL = https://api.eyewasha.com
 1. Search for: `autowasha-dashboard`
 2. Click on the repository to select it
 3. Click: **Begin setup**
