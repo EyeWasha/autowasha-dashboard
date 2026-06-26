@@ -1,0 +1,21 @@
+name = "autowasha"
+
+# Cloudflare Pages configuration for React frontend
+type = "javascript"
+
+# Build settings
+[build]
+command = "cd frontend && npm install && npm run build"
+cwd = "./"
+watch_paths = ["frontend/src/**/*.{js,jsx,css}"]
+
+# Deploy settings for static site
+[env.production]
+route = "example.com/*"
+zone_id = ""
+
+# Static files configuration
+[[build.upload.rules]]
+type = "CompiledContentType"
+globs = ["frontend/build/**/*"]
+fallthrough = false
