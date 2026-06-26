@@ -1,21 +1,15 @@
 name = "autowasha"
 
-# Cloudflare Pages configuration for React frontend
-type = "javascript"
+# Cloudflare Tunnel Configuration
+# This tunnel routes traffic to local backend services
 
-# Build settings
 [build]
-command = "cd frontend && npm install && npm run build"
-cwd = "./"
-watch_paths = ["frontend/src/**/*.{js,jsx,css}"]
+command = "npm run build"
 
-# Deploy settings for static site
-[env.production]
-route = "example.com/*"
-zone_id = ""
+# Tunnel ID for AutoWasha
+tunnel = "c6cca2fa-ad06-47ae-8c8f-0e0b825489c9"
 
-# Static files configuration
-[[build.upload.rules]]
-type = "CompiledContentType"
-globs = ["frontend/build/**/*"]
-fallthrough = false
+# Configure which services the tunnel routes to
+[[services]]
+service = "http://localhost:5000"
+environment = "production"
